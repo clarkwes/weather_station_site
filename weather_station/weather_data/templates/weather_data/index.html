@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		{% load static %}
+		<script src="{% static '/weather_data/plotly.js' %}"></script>
+		<link rel="stylesheet" href="{% static 'weather_data/style.css' %}">
+	</head>
+	<body>
+		<table>
+			<tr class='light-table-row'>
+				<td>ambient temperature</td>
+				<td id='ambient_temperature_livedata'>0</td>
+			</tr>
+			<tr class='dark-table-row'>
+				<td>ground temperature</td>
+				<td id='ground_temperature_livedata'>0</td>
+			</tr>
+			<tr class='light-table-row'>
+				<td>air quality</td>
+				<td id='air_quality_livedata'>0</td>
+			</tr>
+			<tr class='dark-table-row'>
+				<td>air pressure</td>
+				<td id='air_pressure_livedata'>0</td>
+			</tr>
+			<tr class='light-table-row'>
+				<td>humidity</td>
+				<td id='humidity_livedata'>0</td>
+			</tr>
+			<tr class='dark-table-row'>
+				<td>wind direction</td>
+				<td id='wind_direction_livedata'>0</td>
+			</tr>
+			<tr class='light-table-row'>
+				<td>wind speed</td>
+				<td id='wind_speed_livedata'>0</td>
+			</tr>
+			<tr class='dark-table-row'>
+				<td>wind gust speed</td>
+				<td id='wind_gust_speed_livedata'>0</td>
+			</tr>
+			<tr class='light-table-row'>
+				<td>rainfall</td>
+				<td id='rainfall_livedata'>0</td>
+			</tr>
+		</table>
+		<div id="ambient_temp_graph"></div>
+		<div id="ground_temp_graph"></div>
+		<div id="air_quality_graph"></div>
+		<div id="air_pressure_graph"></div>
+		<div id="humidity_graph"></div>
+		<div id="wind_direction_graph"></div>
+		<div id="wind_speed_graph"></div>
+		<div id="wind_gust_speed_graph"></div>
+		<div id="rainfall_graph"></div>
+	</body>
+	<script>
+		let httpRequest;
+		const live_amb_temp = document.getElementById('ambient_temperature_livedata');
+		const live_ground_temp = document.getElementById('ground_temperature_livedata');
+		const live_air_quality = document.getElementById('air_quality_livedata');
+		const live_air_pressure = document.getElementById('air_pressure_livedata');
+		const live_humidity = document.getElementById('humidity_livedata');
+		const live_wind_dir = document.getElementById('wind_direction_livedata');
+		const live_wind_speed = document.getElementById('wind_speed_livedata');
+		const live_gust = document.getElementById('wind_gust_speed_livedata');
+		const live_rainfall = document.getElementById('rainfall_livedata');
+		const amb_tmp_graph = document.getElementById('ambient_temp_graph');
+	
+		let amb_temp_array  = [];	
+		let amb_temp_time_array = [];	
+		let timeCount=0;
+		//array.push
+		//array.shift
+		var data=[{
+
+  		x: amb_temp_time_array,
+  		y: amb_temp_array,
+
+
+  		type: 'scatter'
+
+		}];
+
+
+
+
+		Plotly.newPlot('ambient_temp_graph', data);
+		//function graph
+
+		function makeRequest() 
+		{
+      			httpRequest = new XMLHttpRequest();
+
+      			if (!httpRequest) 
+			{
+        			alert("Giving up :( Cannot create an XMLHTTP instance");
+        			return false;
+      			}
+      			httpRequest.onreadystatechange = alertContents;
+      			httpRequest.open("GET", "live");
+      			httpRequest.send();
+    		}
+		function alertContents() 
+		{
+  			if (httpRequest.readyState === XMLHttpRequest.DONE) 
+			{
+    				if (httpRequest.status === 200) 
+				{
+
+      					const response = JSON.parse(httpRequest.responseText);
+					live_amb_temp.textContent = response.ambient_temperature;
+					live_ground_temp.textContent = response.ground_temperature;
+					live_air_quality.textContent = response.air_quality;
+					live_air_pressure.textContent = response.air_pressure;
+					live_humidity.textContent = response.humidity;
+					live_wind_dir.textContent = response.wind_direction;
+					live_wind_speed.textContent = response.wind_speed;
+					live_gust.textContent = response.wind_gust_speed;
+					live_rainfall.textContent = response.rainfall;
+
+					amb_temp_array.push(response.ambient_temperature);
+					if( amb_temp_array.length > 30){
+						amb_temp_array.shift();
+					
+					}
+					else{
+						amb_temp_time_array.push(timeCount++);
+
+					}
+					Plotly.redraw('ambient_temp_graph');
+
+    				} 
+				else 
+				{
+      					alert('There was a problem with the request.');
+    				}
+  			}
+		}
+		setInterval(makeRequest, 5000);
+	</script>
+</html>

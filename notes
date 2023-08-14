@@ -1,0 +1,10 @@
+1.	Install mysqlclient using pip3.
+	If you don't have pip3 use 'sudo apt-get install python3-pip' to get it.
+	Then run 'sudo apt-get install python3-dev default-libmysqlclient-dev build-essential'.
+	Finally install mysqlclient using 'pip install mysqlclient'.
+
+2.	Add a config file so django can access the database.
+	/etc/mysql/weather.cnf
+	Add backend to db setting in django and point to weather.cnf.
+
+3.      Start web server by going to ~/weather_station_site/weather_station using the cd command. then run 'python3 manage.py runserver 10.0.0.23:8000'
